@@ -1,0 +1,1714 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content strategist and SEO expert.\n\nRead the full HTML article below and produce **exactly** this JSON (no extra text):\n{\n  \"language\": \"en\",\n  \"title\": \"[Best SEO title for the article in English]\",\n  \"metaDescription\": \"[Compelling meta description under 160 characters in English]\",\n  \"focusKeyphrase\": \"spiritual meaning of number [Main Number]\"\n}\n\nRules:\n- Derive everything strictly from the article content.\n- Detect the **main angel number** mentioned and place it in [Main Number].\n- Title must be natural, spiritual, SEO-friendly.\n- No code fences, no notes.\n\nARTICLE HTML:\n---\n{{ $json.message.content }}",
+        "hasOutputParser": true
+      },
+      "id": "6fb2bd8e-dcfa-4f48-b09f-633301d35576",
+      "name": "Generate Yoast EN",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        1040,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"language\": \"en\",\n  \"title\": \"[SEO title in English]\",\n  \"metaDescription\": \"[Persuasive meta description under 160 chars]\",\n  \"focusKeyphrase\": \"angel number [Number]\"\n}"
+      },
+      "id": "d07fd330-ccd7-4976-8b70-b4c776b52248",
+      "name": "Parse EN Yoast JSON",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/posts/{{ $('Create WordPress Draft').item.json.id }}?lang=en",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $('Upload Image to WordPress').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0321645e-f326-46fa-8877-32579a6ae55c",
+      "name": "Attach Featured Image (EN)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        960
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/posts/{{ $('Create WordPress Draft').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"meta\": {\n    \"_yoast_wpseo_focuskw\": \"{{ $('Generate Yoast EN').item.json.output.focusKeyphrase }}\",\n    \"_yoast_wpseo_focuskw_text_input\": \"{{ $('Generate Yoast EN').item.json.output.focusKeyphrase }}\",\n    \"_yoast_wpseo_title\": \"{{ $('Generate Yoast EN').item.json.output.title }}\",\n    \"_yoast_wpseo_metadesc\": \"{{ $('Generate Yoast EN').item.json.output.metaDescription }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "a0bb4e49-7d5e-4d33-bcfd-21222de0b2a0",
+      "name": "Set Yoast SEO Data (EN)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1008,
+        1152
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dd72ff0e-4da4-420d-9a06-d885ffc6127f",
+              "name": "html_en",
+              "value": "={{ $('Translate EN 1').item.json.message.content }}",
+              "type": "string"
+            },
+            {
+              "id": "1cfe2e2c-2b1a-4b48-ad1f-38495ea02256",
+              "name": "title_en",
+              "value": "={{ $json.output.title }}",
+              "type": "string"
+            },
+            {
+              "id": "dc6705ea-7245-4dc1-ac94-0daaf4b4b31b",
+              "name": "slug_en",
+              "value": "={{ $json.output.focusKeyphrase }}",
+              "type": "string"
+            },
+            {
+              "id": "c3a1228a-9203-4386-b0d4-477590c93cf5",
+              "name": "cat_en",
+              "value": "360",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1376,
+        272
+      ],
+      "id": "d737f490-8cfa-4020-b11f-c9bd919acc57",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ff78fdcb-29a1-4e72-8017-b2a6dace02b1",
+              "name": "html_es",
+              "value": "={{$node['2. Acumular y Contar1'].json.articulo_completo}}",
+              "type": "string"
+            },
+            {
+              "id": "671369dd-cd6c-411c-a982-138c93af027d",
+              "name": "title_es",
+              "value": "={{$node['Generate Topic & Metadata1'].json.output.title}}",
+              "type": "string"
+            },
+            {
+              "id": "f81e44f2-e9fd-48ef-af20-85756205024e",
+              "name": "slug_es",
+              "value": "={{ \n  (\n    $('Generate Topic & Metadata1').item.json.output.focusKeyphrase || \n    $('Generate Topic & Metadata1').item.json.output.title\n  )\n  .toLowerCase()\n  .normalize('NFD').replace(/[\\u0300-\\u036f]/g,'')\n  .replace(/[^a-z0-9]+/g,'-')\n  .replace(/(^-|-$)/g,'')\n}}\n",
+              "type": "string"
+            },
+            {
+              "id": "f8ecf73d-fe11-4f07-9dfb-dc676d8eab93",
+              "name": "cat_es",
+              "value": "365",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        352,
+        272
+      ],
+      "id": "1cc6f12b-7ce9-4189-a296-01c946e5f5fa",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -3328,
+        208
+      ],
+      "id": "6b356fea-f0c8-4bf4-97a7-0a1dcf467a67",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "documentId": {
+          "__rl": true,
+          "value": "1yCLs1x_aj50fmGUqw32wBdzqI1dE6xXceT1ihz1_LNw",
+          "mode": "list",
+          "cachedResultName": "Hoja de cálculo sin título",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yCLs1x_aj50fmGUqw32wBdzqI1dE6xXceT1ihz1_LNw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1yCLs1x_aj50fmGUqw32wBdzqI1dE6xXceT1ihz1_LNw/edit#gid=0"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1568,
+        272
+      ],
+      "id": "5556d469-4164-404e-8df6-e42ac7938c03",
+      "name": "Delete rows or columns from sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2sFkPMYR7cHkUy0u",
+          "name": "Google Sheets account (Newshell13)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f53fa45-de33-4e9b-9723-daceb825e2c4",
+              "name": "part_number",
+              "value": 0,
+              "type": "number"
+            },
+            {
+              "id": "8e3f1d3a-b361-496a-a5fc-60e97bf5efd8",
+              "name": "total_parts",
+              "value": 3,
+              "type": "number"
+            },
+            {
+              "id": "7d913ad7-f260-40b3-a62e-d790e657cb0e",
+              "name": "articulo_completo",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "59613961-7c82-4dd1-98c3-5f04df8d8304",
+              "name": "original_message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1920,
+        432
+      ],
+      "id": "a4ca31c3-0345-46fd-ab87-dbe64ed05133",
+      "name": "1. Inicializar Bucle1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "includeUnpaired": false
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1264,
+        240
+      ],
+      "id": "8ace5e87-1327-4811-8000-c65a0f7f89bf",
+      "name": "A. Merge Loop Data1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1f73667b-1b95-4af0-9fd3-95041c7eac44",
+              "leftValue": "={{ $json.part_number }}",
+              "rightValue": "={{ $json.total_parts}}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -880,
+        240
+      ],
+      "id": "d157a035-66a5-4034-8743-99ff9c29ed5a",
+      "name": "¿Más Partes?1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a050c7e-bf99-483c-843f-98597fa03556",
+              "name": "articulo_completo",
+              "value": "={{ $json.articulo_completo && $json.output\n    ? $json.articulo_completo + '\\n\\n' + $json.output\n    : ($json.articulo_completo || $json.output || '') }}\n",
+              "type": "string"
+            },
+            {
+              "id": "52b0ee60-2190-4dcb-939b-8efb00dc0057",
+              "name": "part_number",
+              "value": "={{$json.part_number + 1}}",
+              "type": "number"
+            },
+            {
+              "id": "cf519467-f0ce-414e-bbe7-5f153f5c5527",
+              "name": "total_parts",
+              "value": "={{ $json.total_parts }}",
+              "type": "number"
+            },
+            {
+              "id": "8f9af06b-9919-4797-9896-ec3a7537a963",
+              "name": "original_message",
+              "value": "={{ $json.original_message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1104,
+        240
+      ],
+      "id": "bf525260-4c8a-4213-9b07-9a770b6a9546",
+      "name": "2. Acumular y Contar1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/posts/{{ $('Create WordPress Draft1').item.json.id }}?lang=es",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "featured_media",
+              "value": "={{ $('Upload Image to WordPress1').item.json.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3cef32a7-838e-438d-8c0c-49114a119cd9",
+      "name": "Attach Featured Image1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -96,
+        784
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/media?lang=es",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "image/webp"
+            },
+            {
+              "name": "Content-Disposition",
+              "value": "==attachment; filename={{ $('Generate Topic & Metadata1').item.json.output.slug }}-es.webp"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "9ba9900f-0927-4648-84e8-f378a23bdb4f",
+      "name": "Upload Image to WordPress1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -512,
+        784
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres estratega SEO de carreterasnacionales.com. Genera metadatos SEO para el artículo HTML ya redactado.\n\nDatos esenciales:\n- Detalles del radar (carretera, PK/Km, municipio, coords, límite si hay).\n- Fuente oficial (DGT/SCT/Tráfico País Vasco).\n- Fecha de publicación oficial de la fuente: {{ $json.published_at || 'No disponible' }}.\n\nDevuelve SOLO un JSON con esta forma:\n\n{\n  \"category\": \"Radares\",\n  \"categoryId\": \"40\",\n  \"language\": \"es\",\n  \"topic\": \"Nuevo radar en {{ $json.road || 'carretera' }} PK {{ $json.km || 'N/D' }}\",\n  \"title\": \"Nuevo radar en {{ $json.road || 'carretera' }} (PK {{ $json.km || 'N/D' }}) — {{ $json.municipality || 'Municipio desconocido' }}\",\n  \"slug\": \"radar-{{ ($json.source_id || 'sin-id') }}\",\n  \"metaDescription\": \"Radar en {{ $json.road || 'carretera' }} (PK {{ $json.km || 'N/D' }}), {{ $json.municipality || 'localidad' }}. Límite {{ $json.speed_limit || 'por confirmar' }}. Fuente: {{ $json.source || 'DGT' }}.\",\n  \"focusKeyphrase\": \"radar {{ $json.road || '' }} PK {{ $json.km || '' }}\"\n}\n",
+        "hasOutputParser": true
+      },
+      "id": "7157c9b6-7a02-4a4b-933b-7bd2e76ec36e",
+      "name": "Generate Topic & Metadata1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -560,
+        112
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"category\": \"F-1 Visa\",\n  \"categoryId\": 4794,\n  \"language\": \"en\",\n  \"topic\": \"F-1 visa interview preparation\",\n  \"title\": \"Essential F-1 Visa Interview Tips for International Students\",\n  \"slug\": \"f1-visa-interview-tips-international-students\",\n  \"metaDescription\": \"Master your F-1 visa interview with proven tips and common questions. Get expert guidance for international students applying to US universities.\",\n  \"focusKeyphrase\": \"F-1 visa interview tips\"\n}"
+      },
+      "id": "45456d79-f361-4983-8d3d-69cb84267b38",
+      "name": "Parse Topic JSON",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -400,
+        304
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2160,
+        16
+      ],
+      "id": "0fa0bccf-ab0c-462a-9b6f-daa7d72d36de",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/posts/{{ $('Create WordPress Draft1').item.json.id }}?lang=es",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  meta: {\n    _yoast_wpseo_focuskw: $(\"Generate Topic & Metadata1\").item.json.output.focusKeyphrase,\n    _yoast_wpseo_focuskw_text_input: $(\"Generate Topic & Metadata1\").item.json.output.focusKeyphrase,\n    _yoast_wpseo_title: $(\"Generate Topic & Metadata1\").item.json.output.title,\n    _yoast_wpseo_metadesc: $(\"Generate Topic & Metadata1\").item.json.output.metaDescription\n  }\n}) }}\n",
+        "options": {}
+      },
+      "id": "dfe4466c-6f29-4844-a210-f9335ad03465",
+      "name": "Set Yoast SEO Data (ES)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        144,
+        112
+      ],
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(i => {\n  let s = String(i.json.message?.content ?? i.json.output ?? '').normalize('NFC');\n\n  // Quitar vallas y separadores\n  s = s\n    .replace(/```(?:html)?\\s*\\n?/gi, \"\")\n    .replace(/```/g, \"\")\n    .replace(/^{:.*?}$/gm, \"\");\n\n  // Quitar bullets de seguridad\n  s = s\n    .replace(/^\\*\\s+/gm, \"\")\n    .replace(/^\\-\\s+/gm, \"\")\n    .replace(/^\\+\\s+/gm, \"\");\n\n  // Quitar negritas Markdown **...**\n  s = s.replace(/\\*\\*(.+?)\\*\\*/g, '$1'); // elimina pares\n  s = s.replace(/\\*\\*/g, '');            // elimina restos sueltos\n\n\n  // QUITAR NOTAS tipo \"NOTA:\"\n  s = s\n    // línea suelta con markdown o <strong>\n    .replace(/^\\s*(?:\\*\\*|<strong>)?\\s*nota\\s*(?:\\*\\*|<\\/strong>)?\\s*:\\s.*$/gim, \"\")\n    // párrafo HTML completo que empieza por NOTA:\n    .replace(/<p>\\s*(?:\\*\\*|<strong>)?\\s*nota\\s*(?:\\*\\*|<\\/strong>)?\\s*:\\s[\\s\\S]*?<\\/p>\\s*/gim, \"\")\n    // variantes del propio modelo\n    .replace(/esta\\s+es\\s+la\\s+continuaci[oó]n\\s+en\\s+html\\s+para\\s+la\\s+parte\\s+\\d+[^<\\n]*/gi, \"\");\n\n  return { json: { output: s } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1360,
+        512
+      ],
+      "id": "d93929f7-2f86-46c8-9f6c-e564edae8a7b",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/posts?lang=es",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "specifyBody": "=json",
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "jsonBody": "={{ {\n  title: $('Generate Topic & Metadata1').item.json.output.title,\n  content: $json.articulo_limpio,\n  slug: $('Generate Topic & Metadata1').item.json.output.slug,\n  status: \"draft\",\n  author: 1,\n  categories: [365]\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "df5b27d5-54fa-46d1-8baf-0d9d37d8ab0d",
+      "name": "Create WordPress Draft1",
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://carreterasnacionales.com/wp-json/wp/v2/posts?lang=en",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "=application/json",
+        "body": "={{ JSON.stringify({\n  title: $(\"Generate Yoast EN\").item.json.output.title,\n  content: $('Translate EN 1').item.json.message.content,\n  slug: $(\"Edit Fields1\").item.json.slug_en,\n  status: \"draft\",\n  author: 1,\n  categories: [ Number($(\"Edit Fields1\").item.json.cat_en || 360) ]\n}) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1728,
+        272
+      ],
+      "id": "92506ca4-c912-48be-a66a-9ed5b963c27f",
+      "name": "Create WordPress Draft",
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = String($node[\"2. Acumular y Contar1\"].json.articulo_completo ?? \"\").normalize(\"NFC\");\nconst target = String($json.numero || $json.original_message?.match(/\\d+/)?.[0] || \"\").trim();\n\n// 1) Quitar fences ``` y separadores \"====\", \"----\", etc.\nlet s = src\n  .replace(/```(?:html)?\\s*\\n?/gi, \"\")\n  .replace(/```/g, \"\")\n  .replace(/^(?:\\s*[=\\-_*#]{3,}\\s*\\r?\\n)+/gm, \"\");\n\n// 2) Si el primer nodo es un <h2>, eliminarlo para empezar directo con párrafo\ns = s.replace(/^\\s*<h2\\b[^>]*>[\\s\\S]*?<\\/h2>\\s*/i, \"\");\n\n// 3) H1 → H2 (por si el modelo los metió)\ns = s.replace(/<\\s*h1\\b[^>]*>/gi, \"<h2>\").replace(/<\\s*\\/\\s*h1\\s*>/gi, \"</h2>\");\n\n// 4) Limpiar signos \"+\" de seguridad del modelo\ns = s.replace(/^\\s*\\+\\s*/gm, \"\").replace(/\\s\\+\\s/g, \" \").replace(/\\+\\s*$/gm, \"\");\n\n// 5) Normalizar saltos\ns = s.replace(/\\r/g, \"\").replace(/\\n{3,}/g, \"\\n\\n\").trim();\n\n// Forzar <p> entre h2 y h3\ns = s.replace(/<\\/h2>\\s*<h3>/gi, '</h2><p></p><h3>');\n\n// 5.x) limpiar **...** si quedara algo\ns = s.replace(/\\*\\*(.+?)\\*\\*/g, '$1');\ns = s.replace(/\\*\\*/g, '');\n\n\n// 5.5) Eliminar NOTA residual si la hubiera\ns = s\n  .replace(/^\\s*(?:\\*\\*|<strong>)?\\s*nota\\s*(?:\\*\\*|<\\/strong>)?\\s*:\\s.*$/gim, \"\")\n  .replace(/<p>\\s*(?:\\*\\*|<strong>)?\\s*nota\\s*(?:\\*\\*|<\\/strong>)?\\s*:\\s[\\s\\S]*?<\\/p>\\s*/gim, \"\")\n  .replace(/esta\\s+es\\s+la\\s+continuaci[oó]n\\s+en\\s+html\\s+para\\s+la\\s+parte\\s+\\d+[^<\\n]*/gi, \"\");\n\n\n// 6) Corregir desvío a otros números (2222, etc.) SOLO cuando van tras \"número\"\nif (target) {\n  const wrong = /\\b(n[uú]mero(?:\\s+angelical)?\\s+)(1111|1212|2222|3333|4444|5555|6666|7777|8888|9999)\\b/gi;\n  s = s.replace(wrong, (_, p1) => p1 + target);\n  // También en títulos que contengan otro número\n  const wrongInH = new RegExp(`(<h\\\\d[^>]*>[^<]{0,80}?)(1111|1212|2222|3333|4444|5555|6666|7777|8888|9999)([^<]{0,80}?<\\\\/h\\\\d>)`, \"gi\");\n  s = s.replace(wrongInH, (_, a, _n, c) => a + target + c);\n}\n\nreturn [{ json: { articulo_limpio: s } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        240
+      ],
+      "id": "82676c73-2798-4772-9bba-54775398ad6c",
+      "name": "Clean ES HTML"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f700fef-32f1-46fd-b11b-1c05e4763a67",
+              "name": "alt_es",
+              "value": "={{ $('Generate Topic & Metadata1').item.json.output.focusKeyphrase }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        112
+      ],
+      "id": "9fbd40b3-0717-4419-b077-275c8b3bd2bc",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f700fef-32f1-46fd-b11b-1c05e4763a67",
+              "name": "alt_en",
+              "value": "={{ $('Generate Yoast EN').item.json.output.focusKeyphrase }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        112
+      ],
+      "id": "4644194c-70bb-4254-acc9-3efb424cc108",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/media/{{ $json.id }}?lang=en",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "alt_text",
+              "value": "={{ $('Edit Fields1').item.json.slug_en }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        960
+      ],
+      "id": "cb82d463-56d8-4426-a587-2c02b53e7b71",
+      "name": "HTTP Request1",
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/media?lang=en",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "image/webp"
+            },
+            {
+              "name": "Content-Disposition",
+              "value": "==attachment; filename={{ $('Generate Topic & Metadata1').item.json.output.slug }}-en.webp"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "id": "c68ff1ff-a185-4b74-a696-04dbeaf98d9d",
+      "name": "Upload Image to WordPress",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -512,
+        960
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://carreterasnacionales.com/wp-json/wp/v2/media/{{$('Upload Image to WordPress1').item.json.id}}?lang=es",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "alt_text",
+              "value": "={{ $('Get row(s) in sheet').item.json.message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -288,
+        784
+      ],
+      "id": "57adc13a-4f26-4431-a52b-23d09a6b8012",
+      "name": "HTTP Request",
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://indexing.googleapis.com/v3/urlNotifications:publish",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Create WordPress Draft1').item.json.link }}"
+            },
+            {
+              "name": "type",
+              "value": "URL_UPDATED"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -528,
+        1216
+      ],
+      "id": "5d2817cd-750e-4581-8cc2-4882b94af5b7",
+      "name": "Index ES",
+      "credentials": {
+        "googleApi": {
+          "id": "BUTlfsAzU1l7vLny",
+          "name": "Google Indexing SA (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://indexing.googleapis.com/v3/urlNotifications:publish",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $('Create WordPress Draft').item.json.link }}"
+            },
+            {
+              "name": "type",
+              "value": "URL_UPDATED"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -528,
+        1408
+      ],
+      "id": "ea22f63a-ddf7-4b33-8a52-11e19bfdd529",
+      "name": "Index EN",
+      "credentials": {
+        "googleApi": {
+          "id": "BUTlfsAzU1l7vLny",
+          "name": "Google Indexing SA (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const detectLanguage = (text) => {\n  // Simple detección: si hay muchas palabras comunes en español, es español.\n  const spanishWords = [\"el\", \"la\", \"los\", \"las\", \"un\", \"una\", \"de\", \"en\", \"es\", \"por\", \"con\", \"para\"];\n  const lower = text.toLowerCase();\n  const hits = spanishWords.filter(w => lower.includes(` ${w} `));\n  return hits.length > 3 ? 'es' : 'en';\n};\n\nreturn items.map(item => {\n  let html = String(item.json.message?.content || '');\n\n  const firstPMatch = html.match(/<p>(.*?)<\\/p>/i);\n\n  if (firstPMatch) {\n    const firstP = firstPMatch[1];\n    const lang = detectLanguage(firstP);\n\n    if (lang === 'es') {\n      html = html.replace(firstPMatch[0], `<p>Translation error detected. Please re-translate this section.</p>`);\n    }\n  }\n\n  return {\n    json: {\n      ...item.json,\n      message: { content: html }\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        96
+      ],
+      "id": "543ddd59-c4e6-46ad-a97c-9356bc31ad25",
+      "name": "Verificar Primer Párrafo EN"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        288
+      ],
+      "id": "98925b0a-36b6-41be-964a-0147f4c8db66",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C0sDEjrRIQHl3tZT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Translate this HTML article to English.\nKeep tags (<h2>, <h3>, <p>, <strong>) and structure.\nDo not add notes, code fences, or “+”.\nOutput only clean HTML.\n\nARTICLE:\n{{$json.html_es}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        528,
+        272
+      ],
+      "id": "05095ed6-e3f4-4e78-9986-add511783d1d",
+      "name": "Translate EN",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C0sDEjrRIQHl3tZT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        176
+      ],
+      "id": "b7593fed-0687-4b4a-9945-3cabdf9ba03b",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C0sDEjrRIQHl3tZT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/imagen-4.0-generate-preview-06-06",
+          "mode": "list",
+          "cachedResultName": "models/imagen-4.0-generate-preview-06-06"
+        },
+        "prompt": "=Genera una imagen editorial realista (no artística) de seguridad vial para un artículo sobre un nuevo radar en carretera de España.\n\nRequisitos:\n- Escena de carretera española; puede verse un pórtico o cabina de radar (sin logos/marcas), señal de límite genérica, vehículos a distancia.\n- Nada de texto superpuesto, ni matrículas legibles, ni marcas.\n- Composición horizontal 16:9, estilo fotográfico, iluminación natural.\n- Ambiente neutro (día nublado o despejado suave), tonos realistas.\n- Salida en formato WEBP.\n\nPropósito: imagen destacada para noticia de tráfico / radares en carreterasnacionales.com.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        1152
+      ],
+      "id": "6885fa82-73f1-4798-9cdb-80c6a07c4906",
+      "name": "Generate Featured Image1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C0sDEjrRIQHl3tZT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1664,
+        688
+      ],
+      "id": "bf649e68-25f8-490e-ad1b-fed706d65516",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C0sDEjrRIQHl3tZT",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres redactor de carreterasnacionales.com. Estás escribiendo un artículo en {{ $json.total_parts }} partes. Esta es la parte {{ $json.part_number }}.\n\nIMPORTANTE:\n- Si es la primera parte (parte 0), empieza desde cero.\n- Si es una parte intermedia (1 en adelante), no repitas lo ya escrito.\n- No hagas introducción si no es la primera parte.\n- No cierres el artículo si no es la última parte.\n- Continúa el contenido de forma coherente desde donde se quedó.\n- Si hay contenido anterior, continúa desde ahí: \n\n{{ $json.articulo_completo }}\n\nDATOS DEL RADAR (usa solo estos, no inventes nada)\nCarretera: {{ $('Merge WP + Radar').item.json.road }}\nPK: {{ $('Merge WP + Radar').item.json.km }}\nMunicipio: {{ $('Merge WP + Radar').item.json.municipality }}\nLímite: {{ $('Merge WP + Radar').item.json.speed_limit }}\nCoordenadas: {{ $('Merge WP + Radar').item.json.lat }},{{ $('Merge WP + Radar').item.json.lon }}\nFecha publicación DGT: {{ $('Merge WP + Radar').item.json.source_publication_time }}\nFuente: {{ $('Merge WP + Radar').item.json.source }}\nID: {{ $('Merge WP + Radar').item.json.source_id }}\n\nOBJETIVO\nCrear un artículo que informe del nuevo radar y ayude al conductor.\n\nESTRUCTURA Y ESTILO (salida en HTML dentro del campo content_html)\n- HTML con títulos H2/H3, listas o tablas si procede.\n- Español neutro, tono informativo.\n- No repitas datos innecesarios.\n- Si un dato falta, marca “Desconocido” o sáltalo.\n\nFORMATO DE SALIDA (JSON estricto, sin texto fuera del JSON)\n{\n  \"title\": \"<solo si es la parte 0>\",\n  \"excerpt\": \"<solo si es la parte 0, resumen 25–35 palabras>\",\n  \"content_html\": \"<contenido html de esta parte>\",\n  \"yoast_title\": \"<solo si es la parte 0>\",\n  \"yoast_description\": \"<solo si es la parte 0>\",\n  \"categories\": [\"Radares\"],\n  \"tags\": [\"Radares\",\"DGT\",\"Radar de tramo\",\"{{ $('Merge WP + Radar').item.json.road }}\",\"{{ $('Merge WP + Radar').item.json.municipality }}\"],\n  \"canonical_url\": \"{{ $('Merge WP + Radar').item.json.slug }}\",\n  \"slug\": \"\"\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -1664,
+        512
+      ],
+      "id": "108d8400-6b30-4afa-88fa-1449682460f0",
+      "name": "Message a model1"
+    },
+    {
+      "parameters": {
+        "url": "http://infocar.dgt.es/datex2/dgt/PredefinedLocationsPublication/radares/content.xml",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3760,
+        704
+      ],
+      "id": "216ba0dc-4054-4d11-a3a5-c211faceabcc",
+      "name": "DGT → DATEX2 XML"
+    },
+    {
+      "parameters": {
+        "options": {
+          "ignoreAttrs": true
+        }
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        -3600,
+        720
+      ],
+      "id": "c5637f6e-0c75-4483-9dd4-72e3d72f5957",
+      "name": "XML → JSON (DGT)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- utilidades ---\nfunction den(o){ if (Array.isArray(o)) return o.map(den);\n  if (o && typeof o==='object'){ const r={}; for (const [k,v] of Object.entries(o)){\n    const nk=k.replace(/^@_/,'').replace(/^_?\\d+:/,''); r[nk]=den(v);} return r;} return o; }\nfunction toArr(x){ if (Array.isArray(x)) return x;\n  if (x && typeof x==='object'){ const ks=Object.keys(x);\n    if (ks.length && ks.every(k=>/^\\d+$/.test(k))) return ks.sort((a,b)=>a-b).map(k=>x[k]); return [x]; }\n  return x==null?[]:[x]; }\nconst N=v=>(v==null||v==='')?null:Number(String(v).replace(',','.'));\n\n// --- helpers sobre el nodo interior ---\nconst innerNode = (plOuter) => plOuter?.predefinedLocation ?? plOuter;\n\nconst getName = (outerOrInner) => {\n  const v1=outerOrInner?.predefinedLocationName?.value;\n  const v2=outerOrInner?.predefinedLocationName?.values?.[0]?.value;\n  return String(v1||v2||'').trim();\n};\n\nfunction getCoords(node){\n  const pt=node?.tpegpointLocation?.point||node?.tpegpointLocation||{};\n  const cand=[pt?.pointByCoordinates?.coordinates,pt?.pointByCoordinates,pt?.pointCoordinates?.coordinates,pt?.pointCoordinates];\n  for(const c of cand){ if(!c) continue; const lat=N(c.latitude??c.lat), lon=N(c.longitude??c.lon);\n    if(lat!=null&&lon!=null) return {lat,lon}; }\n  const l=node?.tpeglinearLocation;\n  if(l){ const fc=l?.from?.pointCoordinates||l?.from?.point?.pointCoordinates||{};\n         const tc=l?.to?.pointCoordinates  ||l?.to?.point?.pointCoordinates  ||{};\n         const fLat=N(fc.latitude??fc.lat), fLon=N(fc.longitude??fc.lon);\n         const tLat=N(tc.latitude??tc.lat), tLon=N(tc.longitude??tc.lon);\n         if([fLat,fLon,tLat,tLon].every(v=>v!=null)) return {lat:(fLat+tLat)/2, lon:(fLon+tLon)/2}; }\n  return {lat:null,lon:null};\n}\n\nfunction getRoad(node){\n  const rp=node?.referencePoint;\n  if(rp?.roadNumber||rp?.roadName?.value) return String(rp.roadNumber||rp.roadName.value).toUpperCase();\n  const rpp=node?.referencePointLinear?.referencePointPrimaryLocation?.referencePoint;\n  if(rpp?.roadNumber||rpp?.roadName?.value) return String(rpp.roadNumber||rpp.roadName.value).toUpperCase();\n  const rps=node?.referencePointLinear?.referencePointSecondaryLocation?.referencePoint;\n  if(rps?.roadNumber||rps?.roadName?.value) return String(rps.roadNumber||rps.roadName.value).toUpperCase();\n  const nArr=toArr(node?.tpeglinearLocation?.name);\n  const link=nArr.find(n=>(String(n?.tpegDescriptorType||'').toLowerCase()==='linkname'));\n  return (link?.descriptor?.value || nArr[0]?.descriptor?.value || null)?.toUpperCase() || null;\n}\n\nfunction getKm(node){\n  let m=N(node?.referencePoint?.referencePointDistance);\n  if(m==null){ const rpp=node?.referencePointLinear?.referencePointPrimaryLocation?.referencePoint; m=N(rpp?.referencePointDistance); }\n  if(m==null){ const rps=node?.referencePointLinear?.referencePointSecondaryLocation?.referencePoint; m=N(rps?.referencePointDistance); }\n  return m!=null ? Number((m/1000).toFixed(3)) : null;\n}\n\nfunction getMunicipality(node){\n  const names=toArr(node?.tpeglinearLocation?.name).concat(toArr(node?.tpegpointLocation?.name));\n  const town=names.find(n=>String(n?.tpegDescriptorType||'').toLowerCase()==='townname');\n  if(town?.descriptor?.value) return String(town.descriptor.value).toUpperCase();\n  const rp=node?.referencePoint?.administrativeArea?.value;\n  if(rp) return String(rp).toUpperCase();\n  const rpp=node?.referencePointLinear?.referencePointPrimaryLocation?.referencePoint?.administrativeArea?.value;\n  if(rpp) return String(rpp).toUpperCase();\n  const rps=node?.referencePointLinear?.referencePointSecondaryLocation?.referencePoint?.administrativeArea?.value;\n  if(rps) return String(rps).toUpperCase();\n  const other=names.find(n=>n?.descriptor?.value && String(n?.tpegDescriptorType||'').toLowerCase()!=='linkname');\n  return other?.descriptor?.value ? String(other.descriptor.value).toUpperCase() : null;\n}\n\nfunction getDirection(node){\n  return (\n    node?.referencePoint?.directionRelative ??\n    node?.referencePointLinear?.referencePointPrimaryLocation?.referencePoint?.directionRelative ??\n    node?.referencePointLinear?.referencePointSecondaryLocation?.referencePoint?.directionRelative ??\n    null\n  );\n}\n\nfunction getSpeed(node){\n  const p1=node?.speedLimit?.maximumSpeed ?? node?.speedLimit?.speed ?? node?.maximumAllowedSpeed ?? node?.maxSpeed;\n  if(p1!=null) return N(p1);\n  const e1=node?.referencePoint?.referencePointExtension?.ExtendedReferencePoint?.speedLimit;\n  if(e1!=null) return N(e1);\n  const e2=node?.referencePointLinear?.referencePointPrimaryLocation?.referencePoint?.referencePointExtension?.ExtendedReferencePoint?.speedLimit;\n  if(e2!=null) return N(e2);\n  const e3=node?.referencePointLinear?.referencePointSecondaryLocation?.referencePoint?.referencePointExtension?.ExtendedReferencePoint?.speedLimit;\n  if(e3!=null) return N(e3);\n  function findSpeed(o,d=0){ if(!o||d>4) return null;\n    if(typeof o==='object'){ for(const [k,v] of Object.entries(o)){\n      if(/speed/i.test(k)){ const val=(typeof v==='object')?findSpeed(v,d+1):N(v); if(val!=null) return val; }\n      const deep=findSpeed(v,d+1); if(deep!=null) return deep; } }\n    return null; }\n  return findSpeed(node,0);\n}\n\n// --- normaliza ---\nconst root=den(items[0].json);\nconst pubs=toArr(root?.d2LogicalModel?.payloadPublication);\nconst out=[];\n\nfor (const pub of pubs){\n  const source_publication_time = pub?.publicationTime ?? null;   // << NUEVO\n  const sets=toArr(pub?.predefinedLocationSet);\n  for (const set of sets){\n    const plsOuter=toArr(set?.predefinedLocation);\n    for (const plOuter of plsOuter){\n      const node=innerNode(plOuter);\n      const id=String(plOuter?.id ?? node?.id ?? '').trim();\n      const name=getName(plOuter) || getName(node);\n      const {lat,lon}=getCoords(node);\n      const road=getRoad(node);\n      const km=getKm(node);\n      const municipality=getMunicipality(node);\n      const speed=getSpeed(node);\n      const direction_relative = getDirection(node);\n\n      out.push({ json: {\n        source: 'DGT',\n        source_id: id || name || (lat!=null&&lon!=null?`${lat},${lon}`:null),\n        source_publication_time,                 // << NUEVO (se propaga hasta Merge WP + Radar)\n        title: name || (road ? `Radar DGT ${road}${km!=null ? ' PK '+km : ''}` : 'Radar DGT'),\n        road, km, municipality, speed_limit: speed, lat, lon, direction_relative\n      }});\n    }\n  }\n}\nreturn out.length ? out : [{ json: {} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3392,
+        784
+      ],
+      "id": "65044b6a-1d2e-4064-8ef5-7eeaa86f657d",
+      "name": "Normaliza radares DGT"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(i=>{\n  const j=i.json;\n  const idPart=(j.source_id || (j.lat!=null&&j.lon!=null ? `${j.lat.toFixed(5)}-${j.lon.toFixed(5)}` : 'sin-id'))\n    .toString().toLowerCase().replace(/[^a-z0-9-]+/g,'-');\n  const parts=['radar','dgt', j.road||null, j.km!=null?`pk-${String(j.km).replace(/\\s+/g,'-')}`:null, idPart].filter(Boolean);\n  let slug=parts.join('-').toLowerCase()\n    .normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9-]+/g,'-').replace(/--+/g,'-').replace(/(^-|-$)/g,'');\n  const loc=[j.road, j.km!=null?`PK ${j.km}`:null].filter(Boolean).join(' ');\n  const title=`${j.title || 'Radar DGT'}${loc? ' – '+loc: ''}`;\n  return { json: { ...j, slug, title } };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2720,
+        512
+      ],
+      "id": "53200654-7e75-4d3b-8b7f-e95d71413d62",
+      "name": "Slug + título SEO"
+    },
+    {
+      "parameters": {
+        "url": "https://carreterasnacionales.com/wp-json/wp/v2/posts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "wordpressApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "slug",
+              "value": "={{$json.slug}}"
+            },
+            {
+              "name": "per_page",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -2544,
+        512
+      ],
+      "id": "f4625b94-fe0f-4617-8cc1-c65517f348f3",
+      "name": "¿Existe en WordPress?",
+      "alwaysOutputData": true,
+      "credentials": {
+        "wordpressApi": {
+          "id": "klPdENGWNR3hSeCg",
+          "name": "Wordpress (CarreterasNacionales.Com)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8794696f-d6c0-428e-964e-e258b8d85a3d",
+              "leftValue": "={{ Array.isArray($json.body) ? $json.body.length : 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2208,
+        656
+      ],
+      "id": "8e3bdd44-9ca5-41ae-9e68-5cedaa409b49",
+      "name": "¿Nuevo radar?"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2384,
+        336
+      ],
+      "id": "97726c43-74b5-4a57-8d50-924e61ef5bf6",
+      "name": "Merge WP + Radar"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0f33ee0-562b-4051-ac3b-db3c1c2d0ca2",
+              "name": "message",
+              "value": "={{ `Crear un artículo sobre el nuevo radar de la DGT.Datos:- Carretera: ${$json.road || 'no publicado'}- PK/Kilómetro: ${$json.km || 'no publicado'}- Municipio: ${$json.municipality || 'no publicado'}- Límite de velocidad: ${$json.speed_limit || 'no publicado'}\n\n- Coordenadas: lat ${$json.lat ?? 'no'}, lon ${$json.lon ?? 'no'}\n\n\n- Fuente: ${$json.source || 'DGT'}\n- Fecha publicacion DGT: ${$json.source_publication_time}\n- Slug: ${$json.slug}` }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": false,
+          "dotNotation": false
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2080,
+        336
+      ],
+      "id": "31a0e65e-4233-4b13-8f34-b37b67b3d3ae",
+      "name": "Construir mensaje radar"
+    },
+    {
+      "parameters": {
+        "jsCode": "function walk(o, path=[], depth=0, max=4, acc=[]) {\n  if (depth > max || o == null) return;\n  if (Array.isArray(o)) {\n    acc.push({ path: path.join('.'), type: 'array', len: o.length });\n    if (o.length) walk(o[0], path.concat('[0]'), depth+1, max, acc);\n    return;\n  }\n  if (typeof o === 'object') {\n    const keys = Object.keys(o);\n    acc.push({ path: path.join('.'), type: 'object', keys: keys.slice(0, 15) });\n    for (const k of keys.slice(0, 15)) walk(o[k], path.concat(k), depth+1, max, acc);\n    return;\n  }\n  acc.push({ path: path.join('.'), type: typeof o, value: String(o).slice(0,120) });\n}\nconst acc=[]; walk(items[0].json, [], 0, 5, acc);\nreturn [{ json: { inspect: acc } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3008,
+        352
+      ],
+      "id": "519f17da-c916-4182-9c4c-44469f0a2eb4",
+      "name": "DEBUG DGT"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://overpass-api.de/api/interpreter",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "data",
+              "value": "={{ `[out:json][timeout:25]; way(around:60,${$json.lat},${$json.lon})[highway]; out tags qt;` }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -3056,
+        832
+      ],
+      "id": "2bb71059-4ade-451b-a5ef-beca49bb56aa",
+      "name": "OSM maxspeed"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// 1) tags de Overpass\nconst res = $json.elements || [];\nconst t = (res.find(e => e && e.tags) || { tags: {} }).tags;\n\n// 2) radar del nodo anterior (CVM_50)\nconst prev  = $items('CVM_50', 0, $itemIndex);   // nombre EXACTO del nodo\nconst radar = prev ? prev.json : {};\n\n// 3) parser de velocidad\nconst parse = v => {\n  if (v == null) return null;\n  const m = String(v).match(/([0-9]+(?:\\.[0-9]+)?)/);\n  if (!m) return null;\n  let n = Number(m[1]); if (/\\bmph\\b/i.test(String(v))) n = Math.round(n*1.60934);\n  return n;\n};\n\n// 4) candidatos (forward/backward → genéricos → cualquier maxspeed*)\nconst dir = (radar?.direction || radar?.direction_relative || '').toLowerCase();\nconst cand = [];\nif (dir === 'negative' || dir === 'backward') cand.push(t['maxspeed:backward']);\nif (dir === 'positive' || dir === 'forward')  cand.push(t['maxspeed:forward']);\ncand.push(t['maxspeed:backward'], t['maxspeed:forward'], t.maxspeed, t['maxspeed:practical'], t['maxspeed:advisory']);\nif (!cand.some(v => v != null)) {\n  for (const [k,v] of Object.entries(t)) {\n    if (/^maxspeed/i.test(k) && v != null) { cand.push(v); break; }\n  }\n}\nconst speed = cand.map(parse).find(v => v != null) ?? null;\n\n// 5) DEVOLVER UN SOLO OBJETO con TODO el radar + speed_limit\nreturn { json: { ...radar, speed_limit: speed } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2896,
+        704
+      ],
+      "id": "32d62bac-d38e-4965-b6c0-503b7b2f4352",
+      "name": "Pick maxspeed"
+    },
+    {
+      "parameters": {
+        "jsCode": "const num = s => Number(String(s?.json?.source_id||'').replace(/\\D/g,''))||0;\nconst sorted = items.slice().sort((a,b)=>num(a)-num(b));\nreturn sorted.slice(-1);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -3216,
+        608
+      ],
+      "id": "e9ad496c-cbfe-4f5f-8597-8df505a10b77",
+      "name": "CVM_50"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2576,
+        688
+      ],
+      "id": "c92891e8-dfb6-45b2-a4dc-790244e70b91",
+      "name": "Merge"
+    }
+  ],
+  "connections": {
+    "Generate Yoast EN": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse EN Yoast JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Yoast EN",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Yoast SEO Data (EN)": {
+      "main": [
+        [
+          {
+            "node": "Generate Featured Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Translate EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "DGT → DATEX2 XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete rows or columns from sheet": {
+      "main": [
+        [
+          {
+            "node": "Create WordPress Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Inicializar Bucle1": {
+      "main": [
+        [
+          {
+            "node": "A. Merge Loop Data1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A. Merge Loop Data1": {
+      "main": [
+        [
+          {
+            "node": "2. Acumular y Contar1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Más Partes?1": {
+      "main": [
+        [
+          {
+            "node": "A. Merge Loop Data1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Topic & Metadata1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Acumular y Contar1": {
+      "main": [
+        [
+          {
+            "node": "¿Más Partes?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to WordPress1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Topic & Metadata1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Topic JSON": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Topic & Metadata1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Yoast SEO Data (ES)": {
+      "main": [
+        [
+          {
+            "node": "Generate Featured Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "A. Merge Loop Data1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Create WordPress Draft1": {
+      "main": [
+        [
+          {
+            "node": "Set Yoast SEO Data (ES)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create WordPress Draft": {
+      "main": [
+        [
+          {
+            "node": "Set Yoast SEO Data (EN)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean ES HTML": {
+      "main": [
+        [
+          {
+            "node": "Create WordPress Draft1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Clean ES HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "Delete rows or columns from sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Attach Featured Image (EN)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image to WordPress": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Attach Featured Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Primer Párrafo EN": {
+      "main": [
+        [
+          {
+            "node": "Generate Yoast EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Topic & Metadata1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Translate EN": {
+      "main": [
+        [
+          {
+            "node": "Verificar Primer Párrafo EN",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Yoast EN",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Featured Image1": {
+      "main": [
+        [
+          {
+            "node": "Upload Image to WordPress1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Index ES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DGT → DATEX2 XML": {
+      "main": [
+        [
+          {
+            "node": "XML → JSON (DGT)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML → JSON (DGT)": {
+      "main": [
+        [
+          {
+            "node": "Normaliza radares DGT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliza radares DGT": {
+      "main": [
+        [
+          {
+            "node": "CVM_50",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slug + título SEO": {
+      "main": [
+        [
+          {
+            "node": "¿Existe en WordPress?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge WP + Radar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Existe en WordPress?": {
+      "main": [
+        [
+          {
+            "node": "Merge WP + Radar",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "¿Nuevo radar?": {
+      "main": [
+        [
+          {
+            "node": "Construir mensaje radar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge WP + Radar": {
+      "main": [
+        [
+          {
+            "node": "¿Nuevo radar?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construir mensaje radar": {
+      "main": [
+        [
+          {
+            "node": "1. Inicializar Bucle1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DEBUG DGT": {
+      "main": [
+        []
+      ]
+    },
+    "OSM maxspeed": {
+      "main": [
+        [
+          {
+            "node": "Pick maxspeed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick maxspeed": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "CVM_50": {
+      "main": [
+        [
+          {
+            "node": "OSM maxspeed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Slug + título SEO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "04940fab2a6b0dee18e80858a18c3c35c7ed19c67046535cb2a6d0455347f1b0"
+  }
+}
